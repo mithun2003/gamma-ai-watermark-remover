@@ -88,7 +88,11 @@ def remove_corner_images_with_links(page, target_domain, corner_threshold=0.7):
             except Exception as e:
                 print(f"    ✗ Error removing image xref:{xref}: {e}")
     else:
+<<<<<<< HEAD
         print("    No images with target links found in corner")
+=======
+        print(f"    No images with target links found in corner")
+>>>>>>> 0668a26ad5f4cbc9346f8ab577e80482b651a32d
 
     return removed_count
 
@@ -158,4 +162,8 @@ class WatermarkDetector:
             return results, None
 
         except Exception as e:
+<<<<<<< HEAD
             return [], f"Error searching for elements: {str(e)}"
+=======
+            return [], f"Error searching for elements: {str(e)}"
+>>>>>>> 0668a26ad5f4cbc9346f8ab577e80482b651a32d

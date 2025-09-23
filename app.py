@@ -77,7 +77,11 @@ async def remove_watermark(request: Request, pdf_file: UploadFile = File(...)):
                 output_path = os.path.join(OUTPUT_FOLDER, output_filename)
 
                 # Remove watermarks using new algorithm
+<<<<<<< HEAD
                 print("Removing watermarks...")
+=======
+                print(f"Removing watermarks...")
+>>>>>>> 0668a26ad5f4cbc9346f8ab577e80482b651a32d
                 images_removed, links_removed = remover.clean_pdf_from_target_domain(upload_path, output_path)
 
                 total_removed = images_removed + links_removed
@@ -137,4 +141,8 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 if __name__ == '__main__':
     import uvicorn
+<<<<<<< HEAD
     uvicorn.run(app, host="0.0.0.0", port=8000)
+=======
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+>>>>>>> 0668a26ad5f4cbc9346f8ab577e80482b651a32d

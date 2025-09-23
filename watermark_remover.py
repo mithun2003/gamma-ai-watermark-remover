@@ -131,7 +131,11 @@ class WatermarkRemover:
                 except Exception as e:
                     print(f"    ✗ Error removing image xref:{xref}: {e}")
         else:
+<<<<<<< HEAD
             print("    No images with target links found in corner")
+=======
+            print(f"    No images with target links found in corner")
+>>>>>>> 0668a26ad5f4cbc9346f8ab577e80482b651a32d
 
         return removed_count
 
