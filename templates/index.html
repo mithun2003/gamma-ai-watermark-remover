@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Watermark Remover</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <title>Watermark Remover</title>
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+            integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <style>
         body {
             background-color: #1a1a1a; /* Very Dark Metallic Grey */
             color: #e0e0e0; /* Light Grey Text */
@@ -103,38 +106,112 @@
             margin-right: 10px;
         }
     </style>
-</head>
-<body>
-    <div class="container">
-        <h1><i class="fas fa-tint-slash"></i> Gamma AI Watermark Remover</h1>
+    </head>
+    <body>
+        <div class="container">
+            <h1><i class="fas fa-tint-slash"></i> Gamma AI Watermark
+                Remover</h1>
 
-        <form action="/remove_watermark" method="post" enctype="multipart/form-data">
-            <div class="file-upload-wrapper">
-                <input type="file" name="pdf_file" class="file-upload-input" accept=".pdf" required id="pdfFile">
-                <div class="file-upload-button">
-                    <i class="fas fa-upload"></i> Choose PDF File
+            <form id="watermarkForm" enctype="multipart/form-data">
+                <div class="file-upload-wrapper">
+                    <input type="file" name="pdf_file" class="file-upload-input"
+                        accept=".pdf" required id="pdfFile">
+                    <div class="file-upload-button">
+                        <i class="fas fa-upload"></i> Choose PDF File
+                    </div>
+                    <span class="file-upload-text" id="fileNameText">No file
+                        chosen.</span>
                 </div>
-                <span class="file-upload-text" id="fileNameText">No file chosen.</span>
-            </div>
 
-            <button type="submit"><i class="fas fa-magic"></i> Remove Watermark</button>
-        </form>
+                <button type="submit"><i class="fas fa-magic"></i> Remove
+                    Watermark</button>
+            </form>
 
-        <div id="notification-area">
-            <div class="notification error" id="error-notification">
-                <i class="fas fa-times-circle"></i> <span id="error-message"></span>
-            </div>
-            <div class="notification success" id="success-notification">
-                <i class="fas fa-check-circle"></i> <span id="success-message"></span>
+            <div id="notification-area">
+                <div class="notification error" id="error-notification">
+                    <i class="fas fa-times-circle"></i> <span
+                        id="error-message"></span>
+                </div>
+                <div class="notification success" id="success-notification">
+                    <i class="fas fa-check-circle"></i> <span
+                        id="success-message"></span>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script>
+        <script>
         document.querySelector('.file-upload-input').addEventListener('change', function() {
             const fileName = this.files[0] ? this.files[0].name : 'No file chosen.';
             document.getElementById('fileNameText').textContent = fileName;
         });
+
+        
+    const form = document.getElementById("watermarkForm");
+    const fileInput = document.getElementById("pdfFile");
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const file = fileInput.files[0];
+        if (!file) {
+            showError("Please select a PDF file.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("pdf_file", file);
+
+        try {
+            const response = await fetch("/remove_watermark", {
+                method: "POST",
+                body: formData,
+            });
+
+            // If response is a PDF download
+            const contentType = response.headers.get("Content-Type");
+
+            if (response.ok && contentType && contentType.includes("application/pdf")) {
+                const blob = await response.blob();
+                const disposition = response.headers.get("Content-Disposition");
+                const match = disposition ? disposition.match(/filename="?([^"]+)"?/) : null;
+                const filename = match ? match[1] : "processed.pdf";
+
+                const downloadLink = document.createElement("a");
+                downloadLink.href = URL.createObjectURL(blob);
+                downloadLink.download = filename;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+
+                showSuccess("Watermark removed successfully! Downloading file...");
+            } else {
+                const text = await response.text();
+                showError("Server error: " + text);
+                console.error("Server responded with non-PDF:", text);
+            }
+        } catch (err) {
+            console.log(err);
+            showError("Upload failed: " + err.message);
+            console.error("Upload error:", err);
+        }
+    });
+
+    function showError(message) {
+        const errorDiv = document.getElementById("error-notification");
+        const successDiv = document.getElementById("success-notification");
+        errorDiv.style.display = "block";
+        successDiv.style.display = "none";
+        document.getElementById("error-message").textContent = message;
+    }
+
+    function showSuccess(message) {
+        const errorDiv = document.getElementById("error-notification");
+        const successDiv = document.getElementById("success-notification");
+        errorDiv.style.display = "none";
+        successDiv.style.display = "block";
+        document.getElementById("success-message").textContent = message;
+    }
+
     </script>
-</body>
+    </body>
 </html>
