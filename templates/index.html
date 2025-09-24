@@ -1,305 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Watermark Remover</title>
-        <link rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-            integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
-            crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <style>
-        body {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            color: #e0e0e0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-            overflow-x: hidden;
-        }
-        .container {
-            background: rgba(40, 40, 40, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 50px;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
-            text-align: center;
-            width: 100%;
-            max-width: 650px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .logo-container {
-            margin-bottom: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-        }
-        .gamma-logo {
-            width: 150px;
-            height: auto;
-            filter: drop-shadow(0 0 8px rgba(123, 104, 238, 0.2));
-        }
-        h1 {
-            margin: 0;
-            color: #ddd;
-            font-weight: 300;
-            font-size: 1.8em;
-            letter-spacing: 1px;
-        }
-        .file-upload-wrapper {
-            position: relative;
-            margin-bottom: 40px;
-        }
-        .file-upload-input {
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            opacity: 0;
-            cursor: pointer;
-            width: 100%;
-            z-index: 1;
-        }
-        .file-upload-button {
-            display: block;
-            padding: 20px 30px;
-            border-radius: 15px;
-            background: linear-gradient(135deg, #4a4a4a 0%, #555 100%);
-            color: #f0f0f0;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-        .file-upload-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.5s;
-        }
-        .file-upload-button:hover::before {
-            left: 100%;
-        }
-        .file-upload-button:hover {
-            background: linear-gradient(135deg, #555 0%, #666 100%);
-            border-color: rgba(123, 104, 238, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
-        }
-        .file-upload-button i {
-            margin-right: 12px;
-            font-size: 1.2em;
-        }
-        .file-upload-text {
-            display: block;
-            margin-top: 15px;
-            font-size: 0.9em;
-            color: #bbb;
-            font-style: italic;
-        }
-        button[type="submit"] {
-            padding: 15px 40px;
-            border: none;
-            border-radius: 15px;
-            background: linear-gradient(135deg, #7b68ee 0%, #6a5acd 100%);
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1.1em;
-            font-weight: 500;
-            box-shadow: 0 4px 12px rgba(123, 104, 238, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-        button[type="submit"]::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-        button[type="submit"]:hover::before {
-            left: 100%;
-        }
-        button[type="submit"]:hover {
-            background: linear-gradient(135deg, #6a5acd 0%, #5d4fb3 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(123, 104, 238, 0.25);
-        }
-        button[type="submit"] i {
-            margin-right: 10px;
-        }
-        .notification {
-            margin-top: 30px;
-            padding: 20px;
-            border-radius: 15px;
-            color: #fff;
-            display: none;
-            backdrop-filter: blur(10px);
-        }
-        .notification.error {
-            background: rgba(211, 47, 47, 0.9);
-            border: 1px solid rgba(255, 0, 0, 0.3);
-        }
-        .notification.success {
-            background: rgba(67, 160, 71, 0.9);
-            border: 1px solid rgba(0, 255, 0, 0.3);
-        }
-        .notification i {
-            margin-right: 12px;
-        }
-
-        /* Floating particles animation */
-        .particle {
-            position: fixed;
-            width: 3px;
-            height: 3px;
-            background: rgba(123, 104, 238, 0.2);
-            border-radius: 50%;
-            animation: float 8s infinite linear;
-            pointer-events: none;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translateY(100vh) rotate(0deg);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100px) rotate(360deg);
-                opacity: 0;
-            }
-        }
-    </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1><i class="fas fa-tint-slash"></i> Gamma AI Watermark
-                Remover</h1>
-
-            <form id="watermarkForm" enctype="multipart/form-data">
-                <div class="file-upload-wrapper">
-                    <input type="file" name="pdf_file" class="file-upload-input"
-                        accept=".pdf" required id="pdfFile">
-                    <div class="file-upload-button">
-                        <i class="fas fa-upload"></i> Choose PDF File
-                    </div>
-                    <span class="file-upload-text" id="fileNameText">No file
-                        chosen.</span>
-                </div>
-
-                <button type="submit"><i class="fas fa-magic"></i> Remove
-                    Watermark</button>
-            </form>
-
-        <div id="notification-area">
-            {% if error_message %}
-            <div class="notification error" style="display: block;">
-                <i class="fas fa-times-circle"></i> <span>{{ error_message }}</span>
-            </div>
-            {% endif %}
-            {% if success_message %}
-            <div class="notification success" style="display: block;">
-                <i class="fas fa-check-circle"></i> <span>{{ success_message }}</span>
-            </div>
-            {% endif %}
-        </div>
-
-        <script>
-        document.querySelector('.file-upload-input').addEventListener('change', function() {
-            const fileName = this.files[0] ? this.files[0].name : 'No file chosen.';
-            document.getElementById('fileNameText').textContent = fileName;
-        });
-
-        
-    const form = document.getElementById("watermarkForm");
-    const fileInput = document.getElementById("pdfFile");
-
-    form.addEventListener("submit", async function (e) {
-        e.preventDefault();
-
-        const file = fileInput.files[0];
-        if (!file) {
-            showError("Please select a PDF file.");
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append("pdf_file", file);
-
-        try {
-            const response = await fetch("/remove_watermark", {
-                method: "POST",
-                body: formData,
-            });
-
-            // If response is a PDF download
-            const contentType = response.headers.get("Content-Type");
-
-            if (response.ok && contentType && contentType.includes("application/pdf")) {
-                const blob = await response.blob();
-                const disposition = response.headers.get("Content-Disposition");
-                const match = disposition ? disposition.match(/filename="?([^"]+)"?/) : null;
-                const filename = match ? match[1] : "processed.pdf";
-
-                const downloadLink = document.createElement("a");
-                downloadLink.href = URL.createObjectURL(blob);
-                downloadLink.download = filename;
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-
-                showSuccess("Watermark removed successfully! Downloading file...");
-            } else {
-                const text = await response.text();
-                showError("Server error: " + text);
-                console.error("Server responded with non-PDF:", text);
-            }
-        } catch (err) {
-            console.log(err);
-            showError("Upload failed: " + err.message);
-            console.error("Upload error:", err);
-        }
-    });
-
-    function showError(message) {
-        const errorDiv = document.getElementById("error-notification");
-        const successDiv = document.getElementById("success-notification");
-        errorDiv.style.display = "block";
-        successDiv.style.display = "none";
-        document.getElementById("error-message").textContent = message;
+<head>
+  <meta charset="UTF-8">
+  <title>Watermark Remover</title>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #e0e0e0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
     }
-
-    function showSuccess(message) {
-        const errorDiv = document.getElementById("error-notification");
-        const successDiv = document.getElementById("success-notification");
-        errorDiv.style.display = "none";
-        successDiv.style.display = "block";
-        document.getElementById("success-message").textContent = message;
+    .container {
+      background: rgba(40, 40, 40, 0.95);
+      padding: 40px 50px;
+      border-radius: 20px;
+      text-align: center;
+      width: 100%;
+      max-width: 650px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.8);
     }
+    h1 {
+      margin-bottom: 30px !important;
+      font-weight: 300;
+      font-size: 1.8em;
+      color: #ddd;
+    }
+    .file-upload-wrapper {
+      margin-bottom: 30px;
+    }
+    .file-upload-label {
+      display: inline-block;
+      width: 100%;
+      padding: 20px 0px;
+      border-radius: 15px;
+      background: linear-gradient(135deg,#4a4a4a,#555);
+      border: 2px solid rgba(255,255,255,0.1);
+      color:#f0f0f0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    .file-upload-label:hover { background: linear-gradient(135deg,#555,#666); }
+    .file-upload-label i { margin-right: 8px; }
+    .file-upload-input { display: none; }
+    .file-upload-text {
+      display: block; margin-top: 12px;
+      font-size: 0.9em; color:#bbb; font-style: italic;
+    }
+    button[type="submit"] {
+      padding: 15px 40px;
+      border: none; border-radius: 15px;
+      background: linear-gradient(135deg,#7b68ee,#6a5acd);
+      color:#fff; font-size: 1.1em;
+      cursor:pointer; transition: all .3s ease;
+    }
+    button[disabled] { opacity:0.6; cursor:not-allowed; }
+    /* Notifications */
+    .notification {
+      margin-top: 25px;
+      padding: 15px 40px 15px 15px;
+      border-radius: 12px;
+      color: #fff;
+      display: none;
+      text-align: left;
+      position: relative;
+    }
+    .notification.error { background: rgba(211,47,47,0.9); }
+    .notification.success { background: rgba(67,160,71,0.9); }
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      cursor: pointer;
+      font-size: 18px;
+      color: #fff;
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+    }
+    .close-btn:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-tint-slash"></i> Gamma AI Watermark Remover</h1>
 
-    </script>
-    </body>
+    <form id="watermarkForm" enctype="multipart/form-data">
+      <div class="file-upload-wrapper">
+        <label class="file-upload-label" for="pdfFile">
+          <i class="fas fa-upload"></i> Choose PDF File
+        </label>
+        <input type="file" name="pdf_file" class="file-upload-input" accept=".pdf" id="pdfFile">
+        <span class="file-upload-text" id="fileNameText">No file chosen.</span>
+      </div>
+      <button type="submit" id="submitBtn"><i class="fas fa-magic"></i> Remove Watermark</button>
+    </form>
+
+    <div id="notification" class="notification">
+        <span id="notif-msg"></span>
+        <span class="close-btn" id="notif-close">&times;</span>
+    </div>
+  </div>
+
+<script>
+  const form = document.getElementById("watermarkForm");
+  const fileInput = document.getElementById("pdfFile");
+  const submitBtn = document.getElementById("submitBtn");
+  const notif = document.getElementById("notification");
+  const notifIcon = document.getElementById("notif-icon");
+  const notifMsg = document.getElementById("notif-msg");
+  const notifClose = document.getElementById("notif-close");
+  const fileNameText = document.getElementById("fileNameText");
+
+  fileInput.addEventListener('change', function() {
+    fileNameText.textContent = this.files.length ? this.files[0].name : 'No file chosen.';
+  });
+
+  notifClose.addEventListener("click", () => {
+    notif.style.display = "none"; // simply hide
+  });
+
+  form.addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const file = fileInput.files[0];
+    if (!file) { showError("⚠️ Please select a PDF file before submitting."); return; }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+    const formData = new FormData();
+    formData.append("pdf_file", file);
+
+    try {
+      const response = await fetch("/remove_watermark", { method: "POST", body: formData });
+      const contentType = response.headers.get("Content-Type");
+
+      if (response.ok && contentType && contentType.includes("application/pdf")) {
+        const blob = await response.blob();
+        const disposition = response.headers.get("Content-Disposition");
+        const match = disposition ? disposition.match(/filename="?([^"]+)"?/) : null;
+        const filename = match ? match[1] : "processed.pdf";
+
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showSuccess("✅ Watermark removed successfully! File downloaded.");
+      } else {
+        const text = await response.text();
+        showError("Server error: " + text);
+      }
+    } catch (err) {
+      showError("Upload failed: " + err.message);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fas fa-magic"></i> Remove Watermark';
+    }
+  });
+
+  function showError(msg) {
+    notif.className = "notification error";
+    notif.style.display = "block";
+    notifMsg.textContent = msg;
+  }
+  function showSuccess(msg) {
+    notif.className = "notification success";
+    notif.style.display = "block";
+    notifMsg.textContent = msg;
+  }
+</script>
+</body>
 </html>
