@@ -214,15 +214,15 @@
                     Watermark</button>
             </form>
 
-            <div id="notification-area">
-                <div class="notification error" id="error-notification">
-                    <i class="fas fa-times-circle"></i> <span
-                        id="error-message"></span>
-                </div>
-                <div class="notification success" id="success-notification">
-                    <i class="fas fa-check-circle"></i> <span
-                        id="success-message"></span>
-                </div>
+        <div id="notification-area">
+            {% if error_message %}
+            <div class="notification error" style="display: block;">
+                <i class="fas fa-times-circle"></i> <span>{{ error_message }}</span>
+            </div>
+            {% endif %}
+            {% if success_message %}
+            <div class="notification success" style="display: block;">
+                <i class="fas fa-check-circle"></i> <span>{{ success_message }}</span>
             </div>
             {% endif %}
         </div>
