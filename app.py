@@ -19,8 +19,10 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 app = FastAPI(title="Gamma AI Watermark Remover", version="2.0.0")
 
 # Template configuration
-templates = Jinja2Templates(directory="templates")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 
+templates = Jinja2Templates(directory=TEMPLATES_DIR)
 # Initialize detector and remover
 detector = WatermarkDetector()
 remover = WatermarkRemover()
